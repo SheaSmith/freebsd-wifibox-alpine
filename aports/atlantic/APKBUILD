@@ -1,0 +1,32 @@
+# Maintainer: Gabor Pali <pali.gabor@gmail.com>
+
+pkgname='atlantic'
+pkgver=2.5.3
+pkgrel=1
+_gitrev='340d608726cbfa04b6046d74a362e788e1e17d45'
+pkgdesc='Driver for Aquantia multigigabit NICs'
+arch="x86_64"
+url='https://github.com/Aquantia/AQtion'
+license="GPL-2.0"
+makedepends="linux-lts-dev xz"
+depends="linux-lts"
+install=
+options="!check !strip"
+source="https://github.com/Aquantia/AQtion/archive/${_gitrev}.zip"
+
+_kver=$(cd /usr/src/ && find . -mindepth 1 -maxdepth 1 -type d -name '*-lts' | sed 's!./linux-headers-!!')
+_kbase="/lib/modules/${_kver}"
+_srcdir="$srcdir/AQtion-$_gitrev"
+
+build() {
+  make -C "$_srcdir" -j8 KVER="$_kver"
+}
+
+package() {
+  xz "$_srcdir"/*.ko
+  install -p -D -m 644 "$_srcdir"/*.ko.xz -t "$pkgdir"/lib/modules/"$_kver"/aquantia
+}
+
+sha512sums="
+43bee32ab532500100af30630bff85843f92d9000cd5e09b09de310f8381a9d80d006e67936acf6955afdea675fac71c13b004777f0570f6a795f4968bb3475c  340d608726cbfa04b6046d74a362e788e1e17d45.zip
+"
